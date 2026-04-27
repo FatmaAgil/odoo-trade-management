@@ -7,20 +7,20 @@
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
 
-            <!-- Add new fields inside form -->
+            <!-- 
+                 Custom Fields
+           -->
             <xpath expr="//sheet" position="inside">
-                <group string="Trade Management">
-
+                <group string="Trade Information">
+                    <field name="trade_notes" placeholder="Internal trade notes..." />
                     <field name="priority" />
-
-                    <field name="trade_notes" placeholder="Trade notes..." />
-
-                    <field name="internal_note" placeholder="Internal team notes..." />
-
+                    <field name="internal_note" />
                 </group>
             </xpath>
 
-            <!-- SMART BUTTON -->
+            <!-- 
+                 Smart Button
+            -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_view_invoice"
                     type="object"

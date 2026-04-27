@@ -1,7 +1,12 @@
 from odoo import models, fields
 
+
 class ResPartner(models.Model):
     _inherit = 'res.partner'
+
+    # -------------------------
+    # Customer Segmentation
+    # -------------------------
 
     customer_type = fields.Selection(
         [
@@ -12,6 +17,10 @@ class ResPartner(models.Model):
         string="Customer Type",
         default='regular'
     )
+
+    # -------------------------
+    # Credit Control
+    # -------------------------
 
     credit_limit = fields.Float(
         string="Credit Limit"
