@@ -23,6 +23,11 @@ class SaleOrder(models.Model):
         string="Internal Note"
     )
 
+    invoice_count = fields.Integer(
+        string="Invoices",
+        compute="_compute_invoice_count"
+    )
+
     def action_confirm(self):
         for order in self:
             partner = order.partner_id
@@ -42,3 +47,7 @@ class SaleOrder(models.Model):
 
         # ✅ If all checks pass → proceed normally
         return super(SaleOrder, self).action_confirm()
+    
+    def _compute_invoice_count(self):
+        for order in self:
+            order.invoice_count = len(order.invoice_ids)
