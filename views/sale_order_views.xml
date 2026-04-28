@@ -15,12 +15,18 @@
                     <field name="trade_notes" placeholder="Internal trade notes..." />
                     <field name="priority" />
                     <field name="internal_note" />
+
+                    <!--  delivery button -->
+                    <field name="delivery_status" widget="badge" />
+                    <field name="is_late_delivery" widget="boolean_toggle" />
+
                 </group>
             </xpath>
 
             <!-- 
                  Smart Button
             -->
+            <!-- Invoices Button -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_view_invoice"
                     type="object"

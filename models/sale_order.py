@@ -29,7 +29,7 @@ class SaleOrder(models.Model):
     )
 
     # -------------------------
-    # Smart Button (Day 5)
+    # Smart Button (Invoices - Day 5)
     # -------------------------
 
     invoice_count = fields.Integer(
@@ -42,6 +42,50 @@ class SaleOrder(models.Model):
             order.invoice_count = len(order.invoice_ids)
 
     # -------------------------
+    # Delivery Insights (FIXED - Day 9)
+    # -------------------------
+
+    delivery_status = fields.Selection(
+        [
+            ('no', 'Nothing to Deliver'),
+            ('pending', 'Waiting'),
+            ('partial', 'Partially Delivered'),
+            ('done', 'Fully Delivered')
+        ],
+        string="Delivery Status",
+        compute="_compute_delivery_status"
+    )
+
+    is_late_delivery = fields.Boolean(
+        string="Late Delivery",
+        compute="_compute_delivery_status"
+    )
+
+    def _compute_delivery_status(self):
+        for order in self:
+            pickings = order.picking_ids.filtered(lambda p: p.state != 'cancel')
+
+            if not pickings:
+                order.delivery_status = 'no'
+                order.is_late_delivery = False
+                continue
+
+            if all(p.state == 'done' for p in pickings):
+                order.delivery_status = 'done'
+            elif any(p.state == 'done' for p in pickings):
+                order.delivery_status = 'partial'
+            else:
+                order.delivery_status = 'pending'
+
+            late = False
+            for p in pickings:
+                if p.scheduled_date and p.scheduled_date < fields.Datetime.now() and p.state != 'done':
+                    late = True
+                    break
+
+            order.is_late_delivery = late
+
+    # -------------------------
     # Business Logic (Day 4)
     # -------------------------
 
@@ -49,13 +93,11 @@ class SaleOrder(models.Model):
         for order in self:
             partner = order.partner_id
 
-            # 🚫 Blocked Customer
             if partner.is_blocked:
                 raise ValidationError(
                     f"Customer '{partner.name}' is blocked. Cannot confirm this order."
                 )
 
-            # 🚫 Credit Limit Check
             if partner.credit_limit and order.amount_total > partner.credit_limit:
                 raise ValidationError(
                     f"Customer '{partner.name}' exceeded credit limit.\n"
