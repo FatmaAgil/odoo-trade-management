@@ -29,6 +29,17 @@ class SaleOrder(models.Model):
     )
 
     # -------------------------
+    # Warehouse (DAY 12 NEW)
+    # -------------------------
+
+    warehouse_id = fields.Many2one(
+        'stock.warehouse',
+        string="Warehouse",
+        default=lambda self: self.env['stock.warehouse'].search([], limit=1),
+        help="Warehouse responsible for fulfilling this order"
+    )
+
+    # -------------------------
     # Smart Button (Invoices - Day 5)
     # -------------------------
 
@@ -42,7 +53,7 @@ class SaleOrder(models.Model):
             order.invoice_count = len(order.invoice_ids)
 
     # -------------------------
-    # Delivery Insights (FIXED - Day 9)
+    # Delivery Insights (Day 9)
     # -------------------------
 
     delivery_status = fields.Selection(
@@ -77,13 +88,11 @@ class SaleOrder(models.Model):
             else:
                 order.delivery_status = 'pending'
 
-            late = False
-            for p in pickings:
-                if p.scheduled_date and p.scheduled_date < fields.Datetime.now() and p.state != 'done':
-                    late = True
-                    break
-
-            order.is_late_delivery = late
+            order.is_late_delivery = any(
+                p.scheduled_date and p.scheduled_date < fields.Datetime.now()
+                and p.state != 'done'
+                for p in pickings
+            )
 
     # -------------------------
     # Business Logic (Day 4)
@@ -104,4 +113,4 @@ class SaleOrder(models.Model):
                     f"Limit: {partner.credit_limit}, Order: {order.amount_total}"
                 )
 
-        return super(SaleOrder, self).action_confirm()
+        return super().action_confirm()
