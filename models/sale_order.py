@@ -29,7 +29,7 @@ class SaleOrder(models.Model):
     )
 
     # -------------------------
-    # Warehouse (DAY 12 NEW)
+    # Warehouse (Day 12)
     # -------------------------
 
     warehouse_id = fields.Many2one(
@@ -95,7 +95,26 @@ class SaleOrder(models.Model):
             )
 
     # -------------------------
-    # Business Logic (Day 4)
+    # Automation (Day 12)
+    # -------------------------
+
+    def _check_and_notify_risks(self):
+        for order in self:
+            messages = []
+
+            if order.is_late_delivery:
+                messages.append("⚠️ Delivery is late.")
+
+            if order.partner_id.credit_limit and order.amount_total > order.partner_id.credit_limit:
+                messages.append("⚠️ Customer exceeded credit limit.")
+
+            if messages:
+                order.message_post(
+                    body="<br/>".join(messages)
+                )
+
+    # -------------------------
+    # Business Logic (Day 4 + Automation Hook)
     # -------------------------
 
     def action_confirm(self):
@@ -113,4 +132,9 @@ class SaleOrder(models.Model):
                     f"Limit: {partner.credit_limit}, Order: {order.amount_total}"
                 )
 
-        return super().action_confirm()
+        res = super(SaleOrder, self).action_confirm()
+
+        # ✅ Automation trigger
+        self._check_and_notify_risks()
+
+        return res
