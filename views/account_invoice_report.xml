@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_invoice_document_inherit_trade"
+        inherit_id="account.report_invoice_document">
+
+        <!-- Add approval note below invoice lines -->
+
+        <xpath expr="//div[@id='total']" position="before">
+
+            <div t-if="o.approval_note" class="mt-4">
+
+                <strong>Approval Note:</strong>
+
+                <p t-field="o.approval_note" />
+
+            </div>
+
+        </xpath>
+
+    </template>
+
+</odoo>
