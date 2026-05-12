@@ -17,6 +17,10 @@
                     <field name="approval_note"
                         placeholder="Finance remarks..." />
 
+                    <field name="integration_status"
+                        widget="badge"
+                        readonly="1" />
+
                 </group>
 
             </xpath>
